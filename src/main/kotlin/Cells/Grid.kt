@@ -9,9 +9,59 @@ class Grid(numXCells: Int, numYCells: Int) {
     val numXCells = numXCells
     val numYCells = numYCells
 
-    var cells = createCellGrid(numXCells, numYCells)
+    var cells = createSymmetricalCellGrid(numXCells, numYCells)
 
-    private fun createCellGrid(numXCells: Int, numYCells: Int): Any {
+    private fun createSymmetricalCellGrid(numXCells: Int, numYCells: Int): Array<Array<LifeCell>> {
+        var cells = Array(numXCells) { Array(numYCells) {LifeCell()} }
+
+        for(x in 0 until numXCells)
+            for(y in 0 until numYCells)
+            {
+                cells[x][y] = LifeCell()
+            }
+
+        for(x in 0 until numXCells / 2)
+        {
+            for(y in 0..4)
+            {
+                var alive = Random.nextDouble() < 0.05
+
+                cells[x][y].alive = alive
+                cells[numXCells - x - 1][y].alive = alive
+                cells[numXCells - x - 1][numYCells - y - 1].alive = alive
+                cells[x][numYCells - y - 1].alive = alive
+            }
+        }
+
+        for(y in 0 until numYCells / 2)
+        {
+            for(x in 0..5)
+            {
+                var alive = Random.nextDouble() < 0.05
+                cells[x][y].alive = alive
+                cells[numXCells - x - 1][y].alive = alive
+                cells[numXCells - x - 1][numYCells - y - 1].alive = alive
+                cells[x][numYCells - y - 1].alive = alive
+            }
+        }
+
+
+        return cells
+    }
+
+    private fun createEmptyCellGrid(numXCells: Int, numYCells: Int): Array<Array<LifeCell>> {
+        var cells = Array(numXCells) { Array(numYCells) {LifeCell()} }
+
+        for(x in 0 until numXCells)
+            for(y in 0 until numYCells)
+            {
+                cells[x][y] = LifeCell()
+            }
+
+        return cells
+    }
+
+    private fun createRandomCellGrid(numXCells: Int, numYCells: Int): Array<Array<LifeCell>>  {
         var cells = Array(numXCells) { Array(numYCells) {LifeCell()} }
 
         for(x in 0 until numXCells)
@@ -19,11 +69,7 @@ class Grid(numXCells: Int, numYCells: Int) {
             {
                 cells[x][y] = LifeCell()
 
-
-                // Dumb way to do this, sets roughly 25% alive
-                var alive = Random.nextDouble() < 0.01
-
-
+                var alive = Random.nextDouble() < 0.05
                 cells[x][y].alive = alive
             }
 
@@ -32,7 +78,19 @@ class Grid(numXCells: Int, numYCells: Int) {
 
     fun updateGrid()
     {
-        cells = nextStep(cells as Array<Array<LifeCell>>)
+        cells = nextStep(cells)
+    }
+
+    fun moveCellUp()
+    {
+        val emptyGrid = createEmptyCellGrid(numXCells, numYCells)
+        var theseCells = cells
+        for(x in 0 until numXCells)
+            for(y in 1 until numYCells - 1)
+            {
+                emptyGrid[x][y] = theseCells[x][y - 1]
+            }
+        cells = emptyGrid
     }
 
     fun nextStep(cells: Array<Array<LifeCell>>): Array<Array<LifeCell>> {
